@@ -12,19 +12,18 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 public class Kmeans {
 
-    public void readLine(int[] id) {
+    public String[] readLine(final int[] id, final int k) {
         FileReader fr = null;
+        String[] coords = new String[k];
         try {
             fr = new FileReader("file.txt");
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         BufferedReader br = new BufferedReader(fr);
@@ -37,19 +36,13 @@ public class Kmeans {
                     j++;
                 }
                 line = br.readLine();
-                String[] temp = line.split(" ");
-                double[] coords = new double[temp.length];
-                int k = 0;
-                for (String x : temp) {
-                    coords[k] = Double.parseDouble(x);
-                    k++;
-                }
+                coords[i] = line;
                 j++;
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        return coords;
     }
 
     public int countLines() {
@@ -58,20 +51,12 @@ public class Kmeans {
         try {
             fr = new FileReader("file.txt");
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         BufferedReader br = new BufferedReader(fr);
-        String line = null;
         try {
-            line = br.readLine();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        while (line != null)
-            count++;
-        try {
+            while (br.readLine() != null) 
+                count++;
             fr.close();
             br.close();
         } catch (IOException e) {
@@ -84,33 +69,19 @@ public class Kmeans {
     public static void main(String[] args) throws Exception{
         Configuration conf = new Configuration();
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-        if (otherArgs.length < 2) { //controllare numero parametri passati
-            System.err.println("Usage: wordcount <in> [<in>...] <out>");
+        if (otherArgs.length < 3) { //TODO controllare numero parametri passati
+            System.err.println("Usage: kmeans <input file> <k> <output file>");
             System.exit(2);
         }
-        Job job = Job.getInstance(conf, "kmeans");
-        job.setJarByClass(Kmeans.class);
-        job.setMapperClass(KmeansMapper.class);
-        //job.setCombinerClass(Combiner.class);
-        job.setReducerClass(KmeansReducer.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-        //da definire in base agli input e output che abbiamo
-        for (int i = 0; i < otherArgs.length - 1; ++i) {
-            FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
-        }
-        FileOutputFormat.setOutputPath(job, new Path(otherArgs[otherArgs.length - 1]));
-
-        int[] random = new int[Utils.K];
-
+        final int k = Integer.parseInt(otherArgs[1]);
+        int[] random = new int[k];
         int j = 0;
         boolean repeated = false;
         Random r = new Random();
-        Kmeans k = new Kmeans();
+        Kmeans kmeans = new Kmeans();
         int generated;
-
-        while(j < Utils.K) {
-            generated = r.nextInt(k.countLines());
+        while(j < k) {
+            generated = r.nextInt(kmeans.countLines());
             repeated = false;
             if (j == 0) {
                 random[j] = generated;
@@ -128,11 +99,21 @@ public class Kmeans {
                 }
             }
         }
-
         Arrays.sort(random);
+        String[] coords = kmeans.readLine(random, k);
+        conf.setStrings("centroids", coords);
+        conf.setInt("k", k);
+        Job job = Job.getInstance(conf, "kmeans");
+        job.setJarByClass(Kmeans.class);
+        job.setMapperClass(KmeansMapper.class);
+        //job.setCombinerClass(Combiner.class);
+        job.setReducerClass(KmeansReducer.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(Point.class);
 
-
+        FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+        FileOutputFormat.setOutputPath(job, new Path(otherArgs[otherArgs.length - 1]));
+        //TODO: Aggiungere iterazioni e controllo completamento
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
-
 }

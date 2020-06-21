@@ -40,4 +40,7 @@ public class Centroid implements WritableComparable<Centroid>{
         return 0;
     }
 
+    public Point getPoint(){
+        return point;
+    }
 }

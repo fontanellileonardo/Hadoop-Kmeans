@@ -15,12 +15,27 @@ public class Point implements Writable{
         coords = new ArrayPrimitiveWritable();
     }
 
-    public Point(double[] array) {
+    public Point(String array) {
+        String[] c = array.split(" ");
+        double[] d = new double[c.length];
+        int k = 0;
+        for (String x : c) {
+            d[k] = Double.parseDouble(x);
+            k++;
+        }
+        setVector(d);
+    }
+
+    public Point(double[] array){
         setVector(array);
     }
 
     public void setVector(double[] vector) {
         this.coords.set(vector);
+    }
+
+    public double[] getVector(){
+        return (double[]) coords.get();
     }
 
     @Override
@@ -35,4 +50,18 @@ public class Point implements Writable{
 
     }
 
+    public void add(Point p){
+        double[] c = getVector();
+        double[] points = p.getVector();
+        for (int i = 0; i < c.length; i++)
+            c[i] += points[i];
+        this.setVector(c);
+    }
+
+    public void avg(int sum){
+        double[] c = getVector(); 
+        for (int i = 0; i < c.length; i++)
+           c[i] = c[i] / sum;
+        this.setVector(c); 
+    }
 }
