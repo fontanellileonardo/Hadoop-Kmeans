@@ -16,6 +16,7 @@ public class Point implements Writable{
     }
 
     public Point(String array) {
+        coords = new ArrayPrimitiveWritable();
         String[] c = array.split(" ");
         double[] d = new double[c.length];
         int k = 0;
@@ -26,7 +27,13 @@ public class Point implements Writable{
         setVector(d);
     }
 
+    public Point(Point p){
+        coords = new ArrayPrimitiveWritable();
+        coords = p.coords;
+    }
+
     public Point(double[] array){
+        coords = new ArrayPrimitiveWritable();
         setVector(array);
     }
 
@@ -63,5 +70,15 @@ public class Point implements Writable{
         for (int i = 0; i < c.length; i++)
            c[i] = c[i] / sum;
         this.setVector(c); 
+    }
+
+    public String toString(){
+        String result = new String();
+        System.out.println("Risultato getVector(): " + getVector());
+        double[] c = new double[getVector().length];
+        c = getVector();
+        for(int i = 0; i < c.length; i++)
+            result += c[i];
+        return result;
     }
 }

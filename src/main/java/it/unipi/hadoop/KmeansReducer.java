@@ -10,7 +10,8 @@ public class KmeansReducer extends Reducer<IntWritable, Point, IntWritable, Poin
 
     public void reduce(final IntWritable id, final Iterable<Point> points, Context context) throws IOException, InterruptedException{
         final Iterator<Point> it = points.iterator();
-        Point point_sum = it.next();
+        Point point_sum = new Point(it.next());
+        System.out.println(point_sum.toString());
         int final_how_many = 1;
         while(it.hasNext()){
             point_sum.add(it.next());
