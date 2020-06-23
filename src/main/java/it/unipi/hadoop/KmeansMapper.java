@@ -18,18 +18,16 @@ public class KmeansMapper extends Mapper<Object, Text, IntWritable, Point>{
         k = context.getConfiguration().getInt("k", -1);
         coords = new Centroid[k];
         for(int i = 0; i < lines.length; i++){
-            System.out.println("Array: " + lines[i]);
+         
             String[] temp = lines[i].split(" ");
             double[] c = new double[temp.length];
             int count = 0;
             for (String x : temp) {
                 c[count] = Double.parseDouble(x);
-                System.out.println("Valore di c: " + c[count]);
                 count++;
             }
-            System.out.println("Centroide numero: " + i);
             coords[i] = new Centroid(i, c);
-            System.out.println("Tutto ok! " + i);
+    
         }
     }
 
@@ -41,7 +39,7 @@ public class KmeansMapper extends Mapper<Object, Text, IntWritable, Point>{
         for (int i = 0; i < p1Vector.length; i++){
             sum += Math.pow(p1Vector[i] - p2Vector[i], 2);
         }
-        return Math.sqrt(sum);
+        return Math.sqrt(sum); 
     }
 
     public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException{

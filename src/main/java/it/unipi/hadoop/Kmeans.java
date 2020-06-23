@@ -10,6 +10,7 @@ import java.util.Random;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -84,6 +85,7 @@ public class Kmeans {
             repeated = false;
             if (j == 0) {
                 random[j] = generated;
+                //System.out.println("CENTROIDE: " + random[j]);
                 j++;
             }
             else {
@@ -94,6 +96,7 @@ public class Kmeans {
                 }
                 if(repeated == false) {
                     random[j] = generated;
+                    //System.out.println("CENTROIDE: " + random[j]);
                     j++;
                 }
             }
@@ -106,9 +109,11 @@ public class Kmeans {
         job.setJarByClass(Kmeans.class);
         job.setMapperClass(KmeansMapper.class);
         //job.setCombinerClass(Combiner.class);
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Point.class);
         job.setReducerClass(KmeansReducer.class);
         job.setOutputKeyClass(IntWritable.class);
-        job.setOutputValueClass(Point.class);
+        job.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
         FileOutputFormat.setOutputPath(job, new Path(otherArgs[otherArgs.length - 1]));

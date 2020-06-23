@@ -3,6 +3,7 @@ package it.unipi.hadoop;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.hadoop.io.ArrayPrimitiveWritable;
 import org.apache.hadoop.io.Writable;
@@ -16,7 +17,7 @@ public class Point implements Writable{
     }
 
     public Point(String array) {
-        coords = new ArrayPrimitiveWritable();
+        this();
         String[] c = array.split(" ");
         double[] d = new double[c.length];
         int k = 0;
@@ -24,17 +25,18 @@ public class Point implements Writable{
             d[k] = Double.parseDouble(x);
             k++;
         }
-        setVector(d);
+        setVector(Arrays.copyOf(d, d.length));
     }
 
     public Point(Point p){
-        coords = new ArrayPrimitiveWritable();
-        coords = p.coords;
+        this();
+        double[] vector = p.getVector();
+        setVector(Arrays.copyOf(vector, vector.length));
     }
 
     public Point(double[] array){
-        coords = new ArrayPrimitiveWritable();
-        setVector(array);
+        this();
+        setVector(Arrays.copyOf(array, array.length));
     }
 
     public void setVector(double[] vector) {
@@ -47,31 +49,30 @@ public class Point implements Writable{
 
     @Override
     public void write(DataOutput out) throws IOException {
-        // TODO Auto-generated method stub
-
+        coords.write(out);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
-        // TODO Auto-generated method stub
-
+        coords.readFields(in);
     }
 
     public void add(Point p){
-        double[] c = getVector();
+        double[] c = this.getVector();
         double[] points = p.getVector();
         for (int i = 0; i < c.length; i++)
             c[i] += points[i];
-        this.setVector(c);
+        this.setVector(Arrays.copyOf(c, c.length));
     }
 
     public void avg(int sum){
         double[] c = getVector(); 
         for (int i = 0; i < c.length; i++)
            c[i] = c[i] / sum;
-        this.setVector(c); 
+        this.setVector(Arrays.copyOf(c, c.length)); 
     }
 
+    /*
     public String toString(){
         String result = new String();
         System.out.println("Risultato getVector(): " + getVector());
@@ -81,4 +82,5 @@ public class Point implements Writable{
             result += c[i];
         return result;
     }
+    */
 }
