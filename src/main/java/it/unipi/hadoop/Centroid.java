@@ -14,8 +14,6 @@ public class Centroid{
 
     public Centroid(int id, double[] coords) {
         this.id = new IntWritable(id);
-        for(double d : coords)
-            System.out.println("Array coords: " + d);
         this.point = new Point(coords);
     }
 
