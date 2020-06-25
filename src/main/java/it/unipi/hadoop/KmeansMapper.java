@@ -1,5 +1,6 @@
 package it.unipi.hadoop;
 
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
@@ -14,11 +15,13 @@ public class KmeansMapper extends Mapper<Object, Text, IntWritable, Point>{
     @Override
     protected void setup(Context context) throws IOException, InterruptedException{
         super.setup(context);
+        // Get the values of the centroids
         String[] lines = context.getConfiguration().getStrings("centroids");
+        // Get the number of centroids, -1 default value 
         k = context.getConfiguration().getInt("k", -1);
         coords = new Centroid[k];
+        // Get the values of the centroids
         for(int i = 0; i < lines.length; i++){
-         
             String[] temp = lines[i].split(" ");
             double[] c = new double[temp.length];
             int count = 0;
@@ -27,33 +30,24 @@ public class KmeansMapper extends Mapper<Object, Text, IntWritable, Point>{
                 count++;
             }
             coords[i] = new Centroid(i, c);
-    
         }
-    }
-
-    public double getDistance(Point p1, Point p2){
-        double[] p1Vector = p1.getVector();
-        double[] p2Vector = p2.getVector();
-        //if (p1Vector.length != p2Vector.length) throw new Exception("Invalid length");
-        double sum = 0.0;
-        for (int i = 0; i < p1Vector.length; i++){
-            sum += Math.pow(p1Vector[i] - p2Vector[i], 2);
-        }
-        return Math.sqrt(sum); 
     }
 
     public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException{
         // For each point, we associate the closest centroid
+        //System.out.println("Valore di value: " + value.toString());
         Point p = new Point(value.toString());
+        //System.out.println("Point preso in mapper: "+p.getVector()[0]+" "+p.getVector()[1]);
         double min_distance = 0.0;
         int id_min_distance = -1;
         for (int i = 0; i < k; i++){
-            double distance = getDistance(p, coords[i].getPoint());
+            double distance = p.getDistance(coords[i].getPoint());
             if (i == 0 || min_distance > distance){
                 min_distance = distance;
                 id_min_distance = i;
             }
         }
+        System.out.println("id nel mapper: "+id_min_distance);
         context.write(new IntWritable(id_min_distance), p);
     }
 }

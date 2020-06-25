@@ -72,15 +72,24 @@ public class Point implements Writable{
         this.setVector(Arrays.copyOf(c, c.length)); 
     }
 
-    /*
-    public String toString(){
-        String result = new String();
-        System.out.println("Risultato getVector(): " + getVector());
-        double[] c = new double[getVector().length];
-        c = getVector();
-        for(int i = 0; i < c.length; i++)
-            result += c[i];
-        return result;
+    public String getCoords(){
+        String coord = "";
+        for(int i = 0; i < getVector().length; i++)
+            coord += getVector()[i] + " ";
+        return coord;
     }
-    */
+
+    public double getDistance(Point p1){
+        double[] p1Vector = p1.getVector();
+        double[] p2Vector = this.getVector();
+        //System.out.println("Grandezza vettore: " + p1Vector.length);
+        //System.out.println("centroide: "+p1Vector[0]+" "+p1Vector[1]);
+        //System.out.println("punto: "+p2Vector[0]+" "+p2Vector[1]);
+        //if (p1Vector.length != p2Vector.length) throw new Exception("Invalid length");
+        double sum = 0.0;
+        for (int i = 0; i < p1Vector.length; i++){
+            sum += Math.pow(p1Vector[i] - p2Vector[i], 2);
+        }
+        return Math.sqrt(sum); 
+    }
 }
