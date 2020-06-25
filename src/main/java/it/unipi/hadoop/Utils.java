@@ -1,9 +1,7 @@
 package it.unipi.hadoop;
 
 public class Utils {
-
-    protected static final int K = 4; //clusters
-    protected static final int D = 2; //dimensions
-    protected static final int N = 100; //inputs
-
+    protected final static int MAX_ITERATIONS = 5;
+    protected final static double MIN_ERROR = 10.0;
+    protected final static String FILE_NAME = "part-r-00000";
 }
