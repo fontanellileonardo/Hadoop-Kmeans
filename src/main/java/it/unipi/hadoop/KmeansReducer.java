@@ -12,16 +12,17 @@ public class KmeansReducer extends Reducer<IntWritable, Point, IntWritable, Text
     public void reduce(IntWritable id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
         final Iterator<Point> it = points.iterator();
         Point point_sum = new Point(it.next());
-        //System.out.println("Punto: id: " + id + " Coordinate: " + point_sum.getVector()[0] + " " + point_sum.getVector()[1]);
         int final_how_many = 1;
+        // Parse every point 
         while(it.hasNext()){
             Point p = it.next();
-            //System.out.println("Punto: id: " + id + " Coordinate: " + p.getVector()[0] + " " + p.getVector()[1]);
+            // Add every coordinate of the points
             point_sum.add(p);
+            // Incrementing number of occurrences
             final_how_many++;
-        } 
+        }
+        // Get the average of the point in order to get the new centroid 
         point_sum.avg(final_how_many);
-        //System.out.println("NUOVI CENTROIDI: " + point_sum.getVector()[0] + " " + point_sum.getVector()[1]);
         String temp = "";
         Text t = null;
         for(int i = 0; i < point_sum.getVector().length ; i++)

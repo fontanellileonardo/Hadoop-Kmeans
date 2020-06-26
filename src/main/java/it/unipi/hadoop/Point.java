@@ -82,10 +82,6 @@ public class Point implements Writable{
     public double getDistance(Point p1){
         double[] p1Vector = p1.getVector();
         double[] p2Vector = this.getVector();
-        //System.out.println("Grandezza vettore: " + p1Vector.length);
-        //System.out.println("centroide: "+p1Vector[0]+" "+p1Vector[1]);
-        //System.out.println("punto: "+p2Vector[0]+" "+p2Vector[1]);
-        //if (p1Vector.length != p2Vector.length) throw new Exception("Invalid length");
         double sum = 0.0;
         for (int i = 0; i < p1Vector.length; i++){
             sum += Math.pow(p1Vector[i] - p2Vector[i], 2);
