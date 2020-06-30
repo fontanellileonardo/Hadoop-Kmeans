@@ -46,7 +46,6 @@ public class KmeansMapper extends Mapper<Object, Text, IntWritable, Point>{
                 id_min_distance = i;
             }
         }
-        //System.out.println("id nel mapper: "+id_min_distance);
         context.write(new IntWritable(id_min_distance), p);
     }
 }

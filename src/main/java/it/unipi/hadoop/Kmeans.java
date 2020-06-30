@@ -67,18 +67,12 @@ public class Kmeans {
             String path = outputPath + "/" + Utils.FILE_NAME + name;
             Path pt = new Path(path);
             try {
-                fs = outputPath.getFileSystem(conf);
-                br = new BufferedReader(new InputStreamReader(fs.open(pt)));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-            try {
-                String line;
-                String temp = "";
                 // Counting number of lines of that reducer output file
                 int lines = kmeans.countLines(conf, path);
+                fs = outputPath.getFileSystem(conf);
+                br = new BufferedReader(new InputStreamReader(fs.open(pt)));
+                String line;
+                String temp = "";
                 for(int i = 0; i < lines; i++){
                     line = br.readLine();
                     String[] split = line.split("\\s+");
@@ -89,9 +83,11 @@ public class Kmeans {
                 }
                 br.close();
                 fs.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            } 
         }
         return coords;
     }
@@ -111,8 +107,8 @@ public class Kmeans {
         try {
             while (br.readLine() != null) 
                 count++;
-            fs.close();
             br.close();
+            fs.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,13 +116,13 @@ public class Kmeans {
     }
 
     // Generate random number to choose centroids from input file
-    public int[] generateRandom(final int k, final int numberLines){
+    public int[] generateRandom(final int k, final int numberLines, final int seed){
         int[] random = new int[k];
         int j = 0;
         boolean repeated = false;
         Random r = new Random();
         // Setting the seed
-        r.setSeed(20);
+        r.setSeed(seed);
         int generated;
         // Generate randomly centroids using input file
         while(j < k){
@@ -163,16 +159,9 @@ public class Kmeans {
             job = Job.getInstance(conf, "kmeans");
             job.setJarByClass(Kmeans.class);
             job.setMapperClass(KmeansMapper.class);
-            // TODO Decidere le sorti del combiner
-            //job.setCombinerClass(Combiner.class);
+            job.setCombinerClass(KmeansCombiner.class);
             job.setMapOutputKeyClass(IntWritable.class);
             job.setMapOutputValueClass(Point.class);
-            /* TODO Da ridefinire
-            File f = new File(inputFile);
-            int split = ((int) f.length() / 3) + 1;
-            System.out.println("Numero di split: " + split);
-            conf.set("mapred.max.split.size", String.valueOf(split));
-            */
             job.setNumReduceTasks(Utils.NUM_REDUCERS);
             job.setReducerClass(KmeansReducer.class);
             job.setOutputKeyClass(IntWritable.class);
@@ -192,22 +181,24 @@ public class Kmeans {
         Configuration conf = new Configuration();
         // Parse the input line for retrieving the arguments passed
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-        if (otherArgs.length < 3) {
-            System.err.println("Usage: kmeans <input file> <k> <output file>");
+        if (otherArgs.length < 4) {
+            System.err.println("Usage: kmeans <input file> <k> <seed> <output file>");
             System.exit(2);
         }
         // Save the input file name
         final String inputFile = otherArgs[0];  
         // Save the output file path
-        final Path outputPath = new Path(otherArgs[2]);
+        final Path outputPath = new Path(otherArgs[3]);
         // Save the number of cluster from the input 
         final int k = Integer.parseInt(otherArgs[1]);
+        // Save the seed of the random function from the input
+        final int seed = Integer.parseInt(otherArgs[2]);
         int[] r = new int[k];
         Kmeans kmeans = new Kmeans();
         // Save the number of lines of the input file;
         final int numberLines = kmeans.countLines(conf, inputFile);
         // Generate random number in order to randomly select the centroids
-        r = kmeans.generateRandom(k, numberLines);
+        r = kmeans.generateRandom(k, numberLines, seed);
         // Get the corresponding coordinates in the inputFile   
         oldCoords = kmeans.readInputFile(r, inputFile, k);
         String[] coords = new String[k];
@@ -226,7 +217,7 @@ public class Kmeans {
                 double shift = 0.0;
                 for(Integer index : newCoords.keySet()) 
                     shift += oldCoords.get(index).getDistance(newCoords.get(index));
-                System.out.println("Shift: " + shift);
+                System.out.println("Iteration number: " + iterations + " Shift: " + shift);
                 // If the shift is less than a certain treshold, the program terminates and emits the result achieved at that iteration
                 if(shift <= Utils.MIN_SHIFT) {
                     System.out.println("Min shift achieved");
@@ -246,7 +237,8 @@ public class Kmeans {
             }
             iterations++;
         }
-        System.out.println("Max iterations achieved");
+        if(iterations == Utils.MAX_ITERATIONS)
+            System.out.println("Max iterations achieved");
         System.exit(0);
     }
 }

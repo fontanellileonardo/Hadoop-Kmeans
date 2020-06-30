@@ -6,14 +6,17 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.hadoop.io.ArrayPrimitiveWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
 
 public class Point implements Writable{
 
     private ArrayPrimitiveWritable coords = null;
+    private IntWritable occurrences;
 
     public Point() {
         coords = new ArrayPrimitiveWritable();
+        occurrences = new IntWritable(1);
     }
 
     public Point(String array) {
@@ -31,6 +34,7 @@ public class Point implements Writable{
     public Point(Point p){
         this();
         double[] vector = p.getVector();
+        this.occurrences.set(p.occurrences.get());
         setVector(Arrays.copyOf(vector, vector.length));
     }
 
@@ -47,14 +51,20 @@ public class Point implements Writable{
         return (double[]) coords.get();
     }
 
+    public int getNumber(){
+        return this.occurrences.get();
+    }
+
     @Override
     public void write(DataOutput out) throws IOException {
         coords.write(out);
+        occurrences.write(out);
     }
 
     @Override
     public void readFields(DataInput in) throws IOException {
         coords.readFields(in);
+        occurrences.readFields(in);
     }
 
     public void add(Point p){
@@ -62,14 +72,15 @@ public class Point implements Writable{
         double[] points = p.getVector();
         for (int i = 0; i < c.length; i++)
             c[i] += points[i];
+        this.occurrences.set(this.occurrences.get() + p.getNumber());
         this.setVector(Arrays.copyOf(c, c.length));
     }
 
-    public void avg(int sum){
-        double[] c = getVector(); 
+    public void avg(){
+        double[] c = this.getVector();
         for (int i = 0; i < c.length; i++)
-           c[i] = c[i] / sum;
-        this.setVector(Arrays.copyOf(c, c.length)); 
+           c[i] = c[i] / this.occurrences.get();
+        this.setVector(Arrays.copyOf(c, c.length));
     }
 
     public String getCoords(){
