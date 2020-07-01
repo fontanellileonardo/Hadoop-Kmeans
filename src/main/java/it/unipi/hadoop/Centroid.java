@@ -44,7 +44,6 @@ public class Centroid implements WritableComparable<Centroid>{
 
     @Override
     public int compareTo(Centroid o) {
-        System.out.println("Ho chiamato il compare");
         return this.id.compareTo(o.getId());
     }
 }
