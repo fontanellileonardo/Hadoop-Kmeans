@@ -1,13 +1,18 @@
 package it.unipi.hadoop;
 
-import org.apache.hadoop.io.IntWritable;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-public class Centroid{
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.WritableComparable;
+
+public class Centroid implements WritableComparable<Centroid>{
 
     private IntWritable id;
     private Point point;
 
-    public Centroid(){
+    public Centroid() {
         id = new IntWritable(0);
         point = new Point();
     }
@@ -17,7 +22,28 @@ public class Centroid{
         this.point = new Point(coords);
     }
 
-    public Point getPoint(){
+    public IntWritable getId(){
+        return this.id;
+    }
+
+    public Point getPoint() {
         return point;
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+        id.write(out);
+        point.write(out);
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        id.readFields(in);
+        point.readFields(in);
+    }
+
+    @Override
+    public int compareTo(Centroid o) {
+        return this.id.compareTo(o.getId());
     }
 }

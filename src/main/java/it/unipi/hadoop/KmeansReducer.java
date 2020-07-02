@@ -7,9 +7,9 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class KmeansReducer extends Reducer<IntWritable, Point, IntWritable, Text>{
+public class KmeansReducer extends Reducer<Centroid, Point, IntWritable, Text>{
 
-    public void reduce(IntWritable id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
+    public void reduce(Centroid id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
         final Iterator<Point> it = points.iterator();
         Point point_sum = new Point(it.next());
         // Parse every point 
@@ -25,7 +25,7 @@ public class KmeansReducer extends Reducer<IntWritable, Point, IntWritable, Text
         for(int i = 0; i < point_sum.getVector().length ; i++)
             temp += point_sum.getVector()[i] + " ";
         t = new Text(temp);
-        context.write(id, t);
+        context.write(id.getId(), t);
     }
 }
 
