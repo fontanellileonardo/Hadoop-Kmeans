@@ -31,6 +31,7 @@ public class KmeansMapper extends Mapper<Object, Text, Centroid, Point>{
     }
 
     public void map(final Object key, final Text value, final Context context) throws IOException, InterruptedException{
+        System.out.println("SONO NEL MAPPER!");
         // For each point, we associate the closest centroid
         Point p = new Point(value.toString());
         double min_distance = 0.0;
@@ -43,6 +44,7 @@ public class KmeansMapper extends Mapper<Object, Text, Centroid, Point>{
                 id_min_distance = i;
             }
         }
+        System.out.println("[MAPPER]: Centroide: " + centroids[id_min_distance].getPoint().toString() + " Point: " + p.toString());
         context.write(centroids[id_min_distance], p);
     }
 }

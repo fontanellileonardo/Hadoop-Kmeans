@@ -163,7 +163,7 @@ public class Kmeans {
         */
     }
 
-    public Job createJob(final Configuration conf, final String inputFile, final Path outputPath, final int numberLines){
+    public Job createJob(final Configuration conf, final String inputFile, final Path outputPath){
         Job job = null;
         try {
             job = Job.getInstance(conf, "kmeans");
@@ -214,7 +214,7 @@ public class Kmeans {
         oldCoords = kmeans.readInputFile(conf, r, inputPath, k);
         String[] coords = new String[k];
         for(Integer index : oldCoords.keySet()) {
-            coords[index] = oldCoords.get(index).getCoords();
+            coords[index] = oldCoords.get(index).getStringCoords();
         }
         // Pass the coordinates of the centroid to the mapper with the number of clusters
         conf.setStrings("centroids", coords);
@@ -222,7 +222,7 @@ public class Kmeans {
         int iterations = 0;
         double shift = 0.0;
         while (iterations < Utils.MAX_ITERATIONS){
-            Job job = kmeans.createJob(conf, inputFile, outputPath, numberLines);
+            Job job = kmeans.createJob(conf, inputFile, outputPath);
             if(job.waitForCompletion(true) == false){
                 System.err.println("Job termined with error");
                 System.exit(1);
@@ -240,11 +240,11 @@ public class Kmeans {
             }
             oldCoords = newCoords;
             for(Integer index : newCoords.keySet())
-                System.out.println("Centroide " + index + ": " + newCoords.get(index).getCoords());
+                System.out.println("Centroide " + index + ": " + newCoords.get(index).getStringCoords());
             // Retrieves the coordinates of the new centroids and iterates to copy the new coordinates in the array
             String[] result = new String[k];
             for(Integer index : newCoords.keySet())
-                result[index] = newCoords.get(index).getCoords();
+                result[index] = newCoords.get(index).getStringCoords();
             // Pass the new coordinates of the centroids to the mapper for the next iteration
             conf.setStrings("centroids", result);      
             iterations++;
