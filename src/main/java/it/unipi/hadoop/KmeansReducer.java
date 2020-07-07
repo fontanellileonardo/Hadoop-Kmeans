@@ -9,22 +9,21 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class KmeansReducer extends Reducer<Centroid, Point, IntWritable, Text>{
 
+    private final static Point pointSum = new Point();
+    private final static Point p = new Point();
+
     public void reduce(Centroid id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
         final Iterator<Point> it = points.iterator();
-        Point point_sum = new Point(it.next());
+        pointSum.set(it.next());
         // Parse every point 
         while(it.hasNext()){
-            Point p = new Point(it.next());
+            p.set(it.next());
             // Add every coordinate of the points
-            point_sum.add(p);
+            pointSum.add(p);
         }
         // Get the average of the point in order to get the new centroid 
-        point_sum.avg();
-        String temp = "";
-        Text t = null;
-        for(int i = 0; i < point_sum.getVector().length ; i++)
-            temp += point_sum.getVector()[i] + " ";
-        t = new Text(temp);
+        pointSum.avg();
+        Text t = new Text(pointSum.toString());
         context.write(id.getId(), t);
     }
 }
