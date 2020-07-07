@@ -7,19 +7,18 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class KmeansCombiner extends Reducer<Centroid, Point, Centroid, Point> {
 
+    private final static Point pointSum = new Point();
+    private final static Point p = new Point();
+
     public void reduce(Centroid id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
-        System.out.println("SONO NEL COMBINER!!!");
         final Iterator<Point> it = points.iterator();
-        Point pointSum = new Point(it.next());
-        System.out.println("[COMBINER]: Punto: " + pointSum.toString());
+        pointSum.set(it.next());
         // Parse every point 
         while(it.hasNext()){
-            Point p = new Point(it.next());
-            System.out.println("[COMBINER]: Punto: " + p.toString());
+            p.set(it.next());
             // Add every coordinate of the points
             pointSum.add(p);
         }
-        System.out.println("[COMBINER]: Centroide: " + id.getPoint().toString() + " Point: " + pointSum.toString() + " Occorrenze: " + pointSum.getNumber());
         context.write(id, pointSum);
     }
     

@@ -17,9 +17,9 @@ public class Centroid implements WritableComparable<Centroid>{
         point = new Point();
     }
 
-    public Centroid(int id, double[] coords) {
+    public Centroid(int id, String s) {
         this.id = new IntWritable(id);
-        this.point = new Point(coords);
+        this.point = new Point(s);
     }
 
     public IntWritable getId(){
