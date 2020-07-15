@@ -58,7 +58,7 @@ public class Kmeans {
             String path = outputPath + "/" + Utils.FILE_NAME + name;
             Path pt = new Path(path);
             try {
-                // Counting number of lines of that reducer output file
+                // The lines of the output files are inspected and the shift for the new centroids is computed
                 fs = outputPath.getFileSystem(conf);
                 br = new BufferedReader(new InputStreamReader(fs.open(pt)));
                 String line;
