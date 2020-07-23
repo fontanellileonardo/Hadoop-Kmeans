@@ -10,6 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class KmeansReducer extends Reducer<Centroid, Point, IntWritable, Text>{
 
     private final static Point pointSum = new Point();
+    private final static Text t = new Text();
 
     public void reduce(Centroid id, Iterable<Point> points, Context context) throws IOException, InterruptedException{
         final Iterator<Point> it = points.iterator();
@@ -21,7 +22,7 @@ public class KmeansReducer extends Reducer<Centroid, Point, IntWritable, Text>{
         }
         // Get the average of the point in order to get the new centroid 
         pointSum.avg();
-        Text t = new Text(pointSum.toString());
+        t.set(pointSum.toString());
         context.write(id.getId(), t);
     }
 }

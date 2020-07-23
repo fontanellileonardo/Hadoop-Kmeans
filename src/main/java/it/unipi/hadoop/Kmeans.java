@@ -21,7 +21,7 @@ public class Kmeans {
     private final static HashMap<Integer,Point> centroids = new HashMap<Integer,Point>();
 
     // Taking centroids coordinates from input file at first iteration 
-    public static void readCentroidsFile(final Configuration conf, final Path inputPath) {
+    private static void readCentroidsFile(final Configuration conf, final Path inputPath) {
         FileSystem fs_input = null;
         BufferedReader br = null;
         try {
@@ -43,7 +43,7 @@ public class Kmeans {
     }
 
     //Taking centroids coordinates from output file from the second iteration onwards and delete output file 
-    public static double readOutputFile(final Configuration conf, final Path outputPath, final int k, final int numReducers){
+    private static double readOutputFile(final Configuration conf, final Path outputPath, final int k, final int numReducers){
         BufferedReader br = null;
         FileSystem fs = null;
         double shift = 0.0;
@@ -84,7 +84,7 @@ public class Kmeans {
         return shift;
     }
 
-    public static Job createJob(final Configuration conf, final Path inputPath, final Path outputPath, final int numReducers){
+    private static Job createJob(final Configuration conf, final Path inputPath, final Path outputPath, final int numReducers){
         Job job = null;
         try {
             job = Job.getInstance(conf, "kmeans");
